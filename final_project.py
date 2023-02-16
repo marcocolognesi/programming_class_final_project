@@ -176,7 +176,6 @@ elif option == 'Line plot':
 else:
     None
 
-
 st.caption('Trend of the total suicide rates from 1985 to 2020 (*using the data with the estimated values obtained with the mean*)')
 st.markdown(
 '''
@@ -185,12 +184,21 @@ Looking at the trend of the total suicide rates from 1985 to 2020, we can see th
 '''
 )
 
+
 # 2. Top 10 countries analysis
 
-st.subheader('Countries with most rates analysis')
+st.subheader('Countries analysis')
 st.write(
 '''
 Let's see which are the top 10 countries with the most rates over the years, comparing also by gender and age.
+\n First, we are gonna find the countries with the most rates overall, then we're gonna find the countries with the most rates over 100k inhabitants.
+We are gonna compare the results and see if there's some similarity between the two groups.
+'''
+)
+
+st.write(
+'''
+##### 1. Countries with most rates analysis
 '''
 )
 
@@ -254,6 +262,11 @@ Also, we need to take into consideration the fact that we don't have reliable da
 '''
 )
 
+st.write(
+'''
+##### 2. Countries with most rates over 100k population analysis
+'''
+)
 #2. Gender analysis
 #3. Age group analysis
 #4. Correlation
