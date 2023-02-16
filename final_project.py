@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import streamlit as st
 import seaborn as sns
 
+st.set_page_config(layout='centered')
 st.title("EDA and Visualization of global suicide rates from 1985 to 2020")
 st.markdown(
 '''
@@ -32,7 +33,7 @@ url = 'https://www.kaggle.com/datasets/omkargowda/suicide-rates-overview-1985-to
 st.sidebar.write('Dataset source: [click link](' + url + ')')
 st.sidebar.download_button('Download original dataset', original_df.to_csv(), file_name='suicide_rates.csv')
 
-st.write('The **libraries** used in this project are:')
+st.write('The **libraries** used in this project are: **pandas**, **numpy**, **matplotlib**, **seaborn** and **streamlit**')
 importing_code = '''
 import pandas as pd
 import numpy as np
@@ -41,7 +42,8 @@ import seaborn as sns
 import streamlit as st
 
 '''
-st.code(importing_code, language='python')
+if st.checkbox('Click to see the code', key='1'):
+    st.code(importing_code, language='python')
 
 suicide_df = original_df.copy()
 
@@ -88,7 +90,7 @@ suicide_df.loc[suicide_df['country'] == 'United States', 'country'] = 'United St
 suicide_df.loc[suicide_df['age'] == '5-14 years', 'age'] = '05-14 years'
 '''
 )
-if st.checkbox('Click to see the code', key='1'):
+if st.checkbox('Click to see the code', key='2'):
     st.code(first_changes_code, language='python')
 
 #======================================================================================================================================================================================================
@@ -112,13 +114,13 @@ null_example_code = (
 #Creating boolean masks
 gender_mask = df['gender'] == 'gender' #gender can be 'male' or 'female'
 age_mask = df['age'] == 'xx-xx years' #the different age groups are 05-14, 25-34, 35-54, 55-74, 75+
-country_mask = df['country'] == 'country' #For example Italy, Japan, Germany, ...
+country_mask = df['country'] == 'xyz' #For example Italy, Japan, Germany, ...
 
 #Replacing example
 df.loc[(country_mask) & (age_mask) & (gender_mask), 'suicides_no'] = df[(country_mask) & (age_mask) & (gender_mask)].fillna(np.mean(df[(country_mask) & (age_mask) & (gender_mask) & (df['year'] >= 2010) & (df['suicides_no'] >= 0)]['suicides_no']).round(decimals=0))
 '''
 )
-if st.checkbox('Click to see the code', key='2'):
+if st.checkbox('Click to see the code', key='3'):
     st.code(null_example_code, language='python')
     st.caption('This process has been done for each country, each gender and each age group. The whole code can be found in the Google Colab file linked in the Github page.')
 
@@ -132,6 +134,7 @@ using the population of each group and gender*).
 '''
 )
 
+#Creating the new datasets
 suicide_df_filled = pd.read_csv('fixed_values.csv') #See the colab file for the wall of text of the manipulation
 suicide_df_filled.drop('Unnamed: 0',axis=1, inplace=True)
 
@@ -151,70 +154,96 @@ st.subheader('Analysis of the total rates from 1985 to 2020')
 
 year_groupby_sumrates_filled = suicide_df_filled.groupby('year').suicides_no.sum()
 
-col_1 , col_2 = st.columns(2)
-with col_1:
-    f, ax = plt.subplots(figsize=(8,6))
+option = st.selectbox(
+    'What type of plot you want to display?',
+    ('Choose the plot','Bar plot', 'Line plot'))
+if option == 'Bar plot':
+    f, ax = plt.subplots(figsize=(12,10))
     sns.barplot(x=year_groupby_sumrates_filled.values , y= year_groupby_sumrates_filled.index, color = 'c', orient='h')
     ax.set_title('Trend of the total suicide rates from 1985 to 2020', weight='bold')
     #ax.ticklabel_format(axis = 'x', style = 'plain')
     ax.set_ylabel('Year')
     ax.set_xlabel('Total suicide rates')
     st.write(f)
-with col_2:
-    f, ax = plt.subplots(figsize=(8,6))
+elif option == 'Line plot':
+    f, ax = plt.subplots(figsize=(12,10))
     sns.lineplot(x=year_groupby_sumrates_filled.index , y= year_groupby_sumrates_filled.values)
     ax.set_title('Trend of the total suicide rates from 1985 to 2020', weight='bold')
     #ax.ticklabel_format(axis = 'x', style = 'plain')
     ax.set_ylabel('Total suicide rates')
     ax.set_xlabel('Year')
     st.write(f)
+else:
+    None
+
 
 st.caption('Trend of the total suicide rates from 1985 to 2020 (*using the data with the estimated values obtained with the mean*)')
 st.markdown(
 '''
 Looking at the trend of the total suicide rates from 1985 to 2020, we can see that the peak has occurred in the late 1990's - early 2000's, in particular from 1999 to 2003.
 \n Since then, the trend went down and reached numbers similar to the ones from the early 1990's. Also, the huge decrease in 2016 is due to the fact that we have a lot less data for that year (*only 160 values*).
-\n Now let's see which are the top 10 countries with the most rates over the years, sorting also by gender and age.
+'''
+)
+
+# 2. Top 10 countries analysis
+
+st.subheader('Countries with most rates analysis')
+st.write(
+'''
+Let's see which are the top 10 countries with the most rates over the years, comparing also by gender and age.
 '''
 )
 
 #Finding out which are the top 10 countries with the most suicide rates over the years
-country_groupby_sumrates_filled = suicide_df_filled.groupby('country').suicides_no.sum()
-top_10_countries = country_groupby_sumrates_filled.sort_values(ascending=False)[0:10].index
-top_10_most_suicide_rates = country_groupby_sumrates_filled.sort_values(ascending=False)[0:10].values
+country_groupby_sumrates_not_filled = suicide_df_not_filled.groupby('country').suicides_no.sum()
+top_10_countries = country_groupby_sumrates_not_filled.sort_values(ascending=False)[0:10].index
+top_10_most_suicide_rates = country_groupby_sumrates_not_filled.sort_values(ascending=False)[0:10].values
 
 state_list = ['Russian Federation', 'United States of America', 'Japan', 'Ukraine', 'France','Germany','Republic of Korea','Brazil', 'Poland', 'United Kingdom']
 labels = ['Russia', 'USA', 'Japan', 'Ukraine', 'France', 'Germany', 'South Korea', 'Brazil', 'Poland', 'UK']
 
-top_10_countries_most_suicides_rates_df_filled = suicide_df_filled.query('country in @state_list')
+top_10_countries_most_suicides_rates_df_not_filled = suicide_df_not_filled.query('country in @state_list')
 
-top_10_countries_gender_groupby_sumrates_filled = top_10_countries_most_suicides_rates_df_filled.groupby(['country','gender']).suicides_no.sum()
-top_10_countries_gender_groupby_sumrates_filled_sorted = top_10_countries_gender_groupby_sumrates_filled.reset_index().set_index('country').loc[state_list]
+top_10_countries_gender_groupby_sumrates_not_filled = top_10_countries_most_suicides_rates_df_not_filled.groupby(['country','gender']).suicides_no.sum()
+top_10_countries_gender_groupby_sumrates_not_filled_sorted = top_10_countries_gender_groupby_sumrates_not_filled.reset_index().set_index('country').loc[state_list]
 
-top_10_countries_age_groupby_sumrates_filled = top_10_countries_most_suicides_rates_df_filled.groupby(['country','age']).suicides_no.sum()
-top_10_countries_age_groupby_sumrates_filled_sorted = top_10_countries_age_groupby_sumrates_filled.reset_index().set_index('country').loc[state_list]
+top_10_countries_age_groupby_sumrates_not_filled = top_10_countries_most_suicides_rates_df_not_filled.groupby(['country','age']).suicides_no.sum()
+top_10_countries_age_groupby_sumrates_not_filled_sorted = top_10_countries_age_groupby_sumrates_not_filled.reset_index().set_index('country').loc[state_list]
 
-f, ax = plt.subplots(3,1,figsize=(12,10))
-sns.barplot(x= top_10_countries, y= top_10_most_suicide_rates, palette = "rocket", ax=ax[0])
-ax[0].set_title('Top 10 countries with most suicides from 1986 to 2020, gender and age comparison', weight='bold')
-ax[0].ticklabel_format(axis = 'y', style = 'plain')
-ax[0].set_ylabel('')
-ax[0].set_xlabel('')
-ax[0].set_xticklabels(labels)
-#============================
-sns.barplot(x= top_10_countries_gender_groupby_sumrates_filled_sorted.index, y= 'suicides_no', hue='gender', data= top_10_countries_gender_groupby_sumrates_filled_sorted, palette=('hotpink','cornflowerblue'), ax=ax[1])
-ax[1].ticklabel_format(axis = 'y', style = 'plain')
-ax[1].set_ylabel('Total suicide rates')
-ax[1].set_xlabel('')
-ax[1].set_xticklabels(labels)
-#============================
-sns.barplot(x= top_10_countries_age_groupby_sumrates_filled_sorted.index, y= 'suicides_no', hue='age', data= top_10_countries_age_groupby_sumrates_filled_sorted, palette='rocket_r', ax=ax[2])
-ax[2].set_ylabel('')
-ax[2].set_xlabel('Country')
-ax[2].set_xticklabels(labels)
+#Plotting results
+genre = st.radio(
+    'Choose the plot you want to see',
+    ('Total rates comparison', 'Gender comparison', 'Age groups comparison')
+)
+if genre == 'Total rates comparison':
+    f, ax = plt.subplots(figsize=(12,10))
+    sns.barplot(x= top_10_countries, y= top_10_most_suicide_rates, palette = "rocket")
+    ax.set_title('Top 10 countries with most suicides from 1986 to 2020', weight='bold')
+    ax.ticklabel_format(axis = 'y', style = 'plain')
+    ax.set_ylabel('Total rates')
+    ax.set_xlabel('Countries')
+    ax.set_xticklabels(labels)
+    st.write(f)
+elif genre == 'Gender comparison':
+    f, ax = plt.subplots(figsize=(12,10))
+    sns.barplot(x= top_10_countries_gender_groupby_sumrates_not_filled_sorted.index, y= 'suicides_no', hue='gender', data= top_10_countries_gender_groupby_sumrates_not_filled_sorted, palette=('hotpink','cornflowerblue'))
+    ax.set_title('Top 10 countries with most suicides from 1986 to 2020, gender comparison', weight='bold')
+    ax.ticklabel_format(axis = 'y', style = 'plain')
+    ax.set_ylabel('Total rates')
+    ax.set_xlabel('Gender')
+    ax.set_xticklabels(labels)
+    st.write(f)
+else:
+    f, ax = plt.subplots(figsize=(12,10))
+    sns.barplot(x= top_10_countries_age_groupby_sumrates_not_filled_sorted.index, y= 'suicides_no', hue='age', data= top_10_countries_age_groupby_sumrates_not_filled_sorted, palette='rocket_r')
+    ax.set_title('Top 10 countries with most suicides from 1986 to 2020, age comparison', weight='bold')
+    ax.ticklabel_format(axis = 'y', style = 'plain')
+    ax.set_ylabel('Total rates')
+    ax.set_xlabel('Age groups')
+    ax.set_xticklabels(labels)
+    st.write(f)
 
-st.write(f)
-st.caption('Top 10 countries with the most suicide rates over from 1985 to 2020, using the data with the estimated values obtained with the mean')
+st.caption('Top 10 countries with the most suicide rates over from 1985 to 2020, using the real data we have in this set (***not using the estimated values obtained with the mean***)')
 st.markdown(
 '''
 Looking at the plot, we see that the most suicides occurred in Russia and USA. This shouldn't be surprising as these countries are among the largest in the world and with more population than the others.
@@ -224,6 +253,7 @@ Also, we need to take into consideration the fact that we don't have reliable da
 - The **age group comparison** shows us that in each of the countries in this list, **most of the rates occurred in the 35-54 age group**. From this comparison we see also that Japan has the most rates within the 15-24 and 55-74 age group. We can also see that Brazil has a strangely high rate in the 15-24 age group, in comparison with the other countries near his position.
 '''
 )
+
 #2. Gender analysis
 #3. Age group analysis
 #4. Correlation
