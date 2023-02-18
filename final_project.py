@@ -492,3 +492,80 @@ The **USA**, which were second in the previous chart, are now out of this list, 
 #===================================================================
 
 #4. Correlation
+st.header('Correlation and Machine Learning')
+st.write(
+'''
+In this paragraph we are gonna see the **correlation** between our data and we are gonna try to implement some basic **Machine Learning** algorithms.
+\n **For this purpose we are gonna use the data until 2016 because, as we have stated before, from that year the values in the population columns start to get messy.**
+
+'''
+)
+
+if st.checkbox('Click to see the **heatmap**'):
+    f, ax = plt.subplots(figsize=(12,10))
+    sns.heatmap(suicide_df_until_2016.corr(), annot=True)
+    st.write(f)
+    st.caption('**Heatmap** that shows the correlation among our data (***for this chart we used the data until 2016, because, as we have stated before, from that year the values in the population column start to get messy***).')
+
+st.write(
+'''
+Looking at the **heatmap** we see that the strongest correlation in our data is between the suicide rates and the **population**, with a value of **0.62**. Also, there's some correlation (*even though it's not so strong*) between the **GDP per capita** and the **year** column, with a value of 0.34.
+\n Also, we can see that, although someone may think the opposite, **GDP per capita** **doesn't seem to affect the suicide rates** overall, as they have a correlation value that is equal to only **0,062**.
+'''
+)
+
+# 1. GDP VS YEAR ANALYSIS + CLUSTERING
+st.subheader('Analysis of the trend of the GDP per capita over the years and clustering example')
+
+#GDP VS YEAR PLOTS
+option3 = st.selectbox(
+    'What plot you want to display?',
+    ('Choose the plot','Line plot', 'Scatter plot'),
+    key = 'selectbox3'
+)
+if option3 == 'Line plot':
+    #lineplot gdp vs year
+    f, ax = plt.subplots(figsize=(12,10))
+    ax.set_title('Trend of the GDP per capita over the years', weight='bold')
+    sns.lineplot(x= 'year', y='gdp_per_capita', data=suicide_df_until_2016)
+    ax.set_ylabel('GDP per capita')
+    ax.set_xlabel('Years')
+    st.write(f)
+elif option3 == 'Scatter plot':
+    #scatterplot gdp vs year
+    f, ax = plt.subplots(figsize=(12,10))
+    ax.set_title('Trend of the GDP per capita over the years', weight='bold')
+    plt.scatter(x='year', y='gdp_per_capita', data=suicide_df_until_2016)
+    ax.set_ylabel('GDP per capita')
+    ax.set_xlabel('Years')
+    st.write(f)
+else:
+    st.write('')
+
+st.write(
+'''
+From the following plots we can see how the **GDP per capita** had an overall **increasing trend** over the years.
+\n Now, we are gonna try to implement a simple **clustering** example, using the **KMeans algorithm**, to determine three different GDP per capita groups: **low**, **medium** and **high**.
+'''
+)
+
+
+#===========================================================================
+
+
+#SUICIDES VS POPULATION ANALYSIS
+st.write(
+'''
+##### 2. Analysis of the suicide rates among the population
+'''
+)
+
+#scatterplot rates vs plot
+if st.checkbox('Click to see the plot'):
+    f, ax = plt.subplots(figsize=(12,10))
+    ax.set_title('Distribution of the suicide rates among the population', weight='bold')
+    plt.scatter(x='population', y='suicides_no', data=suicide_df_until_2016)
+    ax.ticklabel_format(axis = 'x', style = 'plain')
+    ax.set_ylabel('Total suicide rates')
+    ax.set_xlabel('Population')
+    st.write(f)
