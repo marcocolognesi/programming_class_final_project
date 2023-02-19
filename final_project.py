@@ -549,6 +549,42 @@ From the following plots we can see how the **GDP per capita** had an overall **
 '''
 )
 
+cluster_code_example = '''
+from sklearn.cluster import KMeans
+x = suicide_df_until_2016[['year', 'gdp_per_capita']]
+km = KMeans(n_clusters=3, random_state=42)
+y_pred = km.fit_predict(x)
+
+#Plot
+f = plt.figure(figsize=(12,10))
+labels_cluster = ['Ordinary GDP per capita', 'Low GDP per capita', 'High GDP per capita']
+for i in range(3):
+    plt.scatter(x.loc[y_pred==i, 'year'], x.loc[y_pred==i, 'gdp_per_capita'], label=labels_cluster[i]) 
+plt.xlabel('year')
+plt.ylabel('gdp_per_capita')
+plt.legend()
+'''
+if st.checkbox('Click to see the code', key='clustercode'):
+    st.code(cluster_code_example, language='python')
+
+#CLUSTERING ALGORITHM AND PLOTTING
+if st.button('Run the model'):
+    #KMeans algorithm
+    from sklearn.cluster import KMeans
+    x = suicide_df_until_2016[['year', 'gdp_per_capita']]
+    km = KMeans(n_clusters=3, random_state=42)
+    y_pred = km.fit_predict(x)
+    #Plotting
+    f = plt.figure(figsize=(12,10))
+    labels_cluster = ['Ordinary GDP per capita', 'Low GDP per capita', 'High GDP per capita']
+    for i in range(3):
+        plt.scatter(x.loc[y_pred==i, 'year'], x.loc[y_pred==i, 'gdp_per_capita'], label=labels_cluster[i]) 
+    plt.xlabel('year')
+    plt.ylabel('gdp_per_capita')
+    plt.legend()
+    st.write(f)
+    st.caption('From the plot above we can see how the model finds the three clusters (***three levels of GDP per capita***) over the years (***for this model we used the data until 2016, without any estimated values***).')
+
 
 #===========================================================================
 
