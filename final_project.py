@@ -240,8 +240,8 @@ else:
 #Writing conclusions about the total rates over the years analysis
 st.write(
 '''
-Looking at the trend of the **total suicide rates from 1985 to 2020**, we can see that the **peak** has occurred in the **late 1990's - early 2000's**, in particular from **1999** to **2003**.
-\n Since then, the trend went down and reached numbers similar to the ones from the early 1990's. Also, **the huge decrease in 2016 is due to the fact that we have a lot less data for that year** (*only 160 values*).
+Looking at the trend of the **total suicide rates from `1985` to `2020`**, we can see that the **peak** has occurred in the **`late 1990's - early 2000's`**, in particular from **`1999`** to **`2003`**.
+\n Since then, the trend went down and reached numbers similar to the ones from the early 1990's. Also, **the huge decrease in 2016 is due to the fact that we have a lot less data for that year** (*only `160` values*).
 \n Now, let's see how the total rates are divided by **sex** and **age group** and also how they changed over the **years**:
 '''
 )
@@ -425,7 +425,7 @@ else:
 st.write(
 '''
 * From the **gender analysis**, we can see that, over the years, the **number of male suicides** has been **far superior** compared to the **female rates**. Also, the **analysis of the rates over 100k population confirms this statement**.
-* From the **age groups analysis**, we can see that, over the years, the rates of the **"35-54 years"** age group has been **far superior** compared to the others. The **analysis of the rates over 100k population**, however, does not confirm this statement. In fact, in this last analysis, the "**75+ years**" age group has the most rates over the years.
+* From the **age groups analysis**, we can see that, over the years, the rates of the **`"35-54 years"`** age group has been **far superior** compared to the others. The **analysis of the rates over 100k population**, however, does not confirm this statement. In fact, in this last analysis, the **`"75+ years"`** age group has the most rates over the years.
 
 Now, let's see which are the countries around the world with the most rates over the years.
 '''
@@ -523,9 +523,9 @@ Looking at the plot, we see that the **most suicides** occurred in **Russia** an
 Also, we need to take into consideration the fact that we don't have reliable data (***or no data at all***) for a lot of important countries, such as China and India for example, but also for most of the african ones.
 * The **gender comparison** reflects the result we've seen before from the global trend. In every of this list we had **more male suicides than female ones**:
   - If we look at the female rates, **Japan** seems to be the country with **most female suicides**.
-* Also, the **age group comparison** reflects the result we've seen before. In each of the countries in this list, **most of the rates occurred in the 35-54 age group**. From this comparison we see also that:
-  - **Japan** has the **most rates within the "15-24 years" and "55-74 years" age group**.
-  - **Brazil** has a **strangely high rate in the "15-24 years" age group**, in comparison with the other countries near his position.
+* Also, the **age group comparison** reflects the result we've seen before. In each of the countries in this list, **most of the rates occurred in the `"35-54 years"` age group**. From this comparison we see also that:
+  - **Japan** has the **most rates within the `"15-24 years"` and `"55-74 years"` age group**.
+  - **Brazil** has a **strangely high rate in the `"15-24 years"` age group**, in comparison with the other countries near his position.
 '''
 )
 
@@ -609,9 +609,9 @@ The fact that Russia is at the top positions in both the two analysis shows that
 The **USA**, which were second in the plots we have seen before, are now out of this list, symptom that the huge population may be a factor that influeced the first analysis.
 * The **gender comparison** reflects the result previously reported from the **global trend over 100k population**. In every country of this list we had **more male suicides than female ones**:
   - If we look at the female rates, **Korea** seems to be the country with **most female suicides over 100k population**.
-* Also, the **age group comparison** still reflects the result we've seen before. In each of the countries in this last list, **most of the rates occurred in the 75+ age group**. From this comparison we see also that:
-  - **Korea** has by far the **highest rates within the "75+ years", "55-74 years", "35-54 years" and "25-34 years" age group**.
-  - **Lithuania** and **Finland** are the only countries in this list that don't follow the global trends over 100k population. In fact, in those countries, the **"35-54 years" age group** is **the one with the highest rates**.
+* Also, the **age group comparison** still reflects the result we've seen before. In each of the countries in this last list, **most of the rates occurred in the `"75+ years"` age group**. From this comparison we see also that:
+  - **Korea** has by far the **highest rates within the `"75+ years"`, `"55-74 years"`, `"35-54 years"` and `"25-34 years"` age group**.
+  - **Lithuania** and **Finland** are the only countries in this list that don't follow the global trends over 100k population. In fact, in those countries, the **`"35-54 years"` age group** is **the one with the highest rates**.
 '''
 )
 
