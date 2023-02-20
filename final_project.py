@@ -4,37 +4,56 @@ import matplotlib.pyplot as plt
 import streamlit as st
 import seaborn as sns
 
+#Web page: Title and info box
+
 st.set_page_config(layout='centered')
+
 st.title("EDA and Visualization of global suicide rates from 1985 to 2020")
+
 st.info(
 '''
-Suicide is a serious global public health issue. It is among the top twenty leading causes of death worldwide, with more deaths due to suicide than to malaria, breast cancer, or war and homicide. 
-Close to 800 000 people die by suicide every year (*World Health Organization, 2019*).
+**Suicide is a serious global public health issue**. It is among the **top twenty leading causes of death worldwide**, with more deaths due to suicide than to malaria, breast cancer, or war and homicide. 
+Close to 800 000 people die by suicide every year (***World Health Organization, 2019***).
 \n 
-The aim of this project is to **analyze** and **visualize** the different suicide rates around the world, from 1985 to 2020, and see the **correlation** between our data. In particular, we are gonna see if the GDP per capita is a factor that influences the rates.
-\n Also, we are gonna implement some basic **Machine Learning** examples such as **clustering** and **linear regression**.
+The aim of this project is to **analyze** and **visualize** the different suicide rates around the world and how they changed over the years (***from 1985 to 2020***), and also to see the **correlation** between our data. In particular, we are interested to know if the GDP per capita is a factor that influences the rates.
+\n In the last steps of our analysis we are gonna implement some basic **Machine Learning** examples such as **clustering** and **linear regression**.
 '''
 )
 
 #=======================================================================================================================================================================================================
-#INITIAL DATA EXPLORATION
+# 1. INITIAL DATA EXPLORATION
 
+# 1st Chapter header
 st.header('Initial data exploration')
-st.write('By taking a first look at the dataset, we can see that the rates are divided for each country, for each year, for each sex and for 6 different age groups.')
 
+#creating original df and a copy to work with
 original_df = pd.read_csv('master.csv')
+suicide_df = original_df.copy()
 
+#adding text and checkbox on streamlit
+st.write('By taking a first look at the dataset, we can see how the rates are divided for each **country**, for each **year** (*from 1985 to 2020*), for each **sex** and for 6 different **age groups** (*"05-14 years", "15-24 years", "25-34 years", "35-54 years", "55-74 years", "75+ years"*).')
+
+#checkbox to see the original data in the web page
 if st.checkbox('Click to see the original data'):
     st.write(original_df)
     st.caption('The original data can be downloaded from the sidebar.')
 
+#===============================================================================================================
+# SIDEBAR
 #Adding download button and link in the sidebar
 st.sidebar.subheader('Useful links')
-url = 'https://www.kaggle.com/datasets/omkargowda/suicide-rates-overview-1985-to-2021'
-st.sidebar.write('Dataset source: [click link](' + url + ')')
-st.sidebar.download_button('Download original dataset', original_df.to_csv(), file_name='suicide_rates.csv')
 
-st.write('The **libraries** used in this project are: **pandas**, **numpy**, **matplotlib**, **seaborn** and **streamlit**')
+url = 'https://www.kaggle.com/datasets/omkargowda/suicide-rates-overview-1985-to-2021'
+
+st.sidebar.write('Dataset source: [click link](' + url + ')')
+
+st.sidebar.download_button('Download original dataset', original_df.to_csv(), file_name='suicide_rates.csv')
+#===============================================================================================================
+
+#Text, importing_code_example, list of changes made + code examples
+
+st.write('The **libraries** used in this project are: **pandas**, **numpy**, **matplotlib**, **seaborn**, **sklearn** and **streamlit**')
+
 importing_code = '''
 import pandas as pd
 import numpy as np
@@ -42,36 +61,48 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 
+#Machine Learning part
+#Clustering
+from sklearn.cluster import KMeans
+
+#Linear Regression
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
 '''
+
 if st.checkbox('Click to see the code', key='1'):
     st.code(importing_code, language='python')
 
-suicide_df = original_df.copy()
+st.write('''
+The **changes** made to the original data are the following:
 
-st.write('The changes made to the original data are the following:')
-st.markdown(
-'''
-1. The columns are renamed in order to be more manageable;
-2. The following columns are dropped:
-    - **'country_year'**, as it's useless for our analysis;
-    - **'hdi_for_year'**, as it doesn't have enough data to work with (*only 12.300 values instead of the 31.756 of the other columns*);
+* The columns are **renamed** in order to be more manageable;
+* The following columns are **dropped**:
+    - **'country_year'**, because it's useless for our analysis;
+    - **'hdi_for_year'**, because it doesn't have enough data to work with (*only 12.300 values instead of the 31.756 of the other columns*);
     - **'generation'**, because by taking a deeper look into the data we can see that it's a bit inaccurate.
-3. We fix the rates for the United States of America, as they are listed in two different ways;
-4. We rename the 5-14 age group for a better future sorting and visualization. 
+* We fix the rates for the United States of America, as they are listed in two different ways;
+* We rename the "5-14 years" age group for a better future sorting and visualization. 
 '''
 )
 
-#Renaming columns
+#=================================================================================================================================
+#CHANGES IN THE DATASET
+# 1. Renaming columns
 suicide_df.columns = ['country', 'year', 'gender', 'age', 'suicides_no', 'population', 'suicides_100k_pop', 'country_year', 'hdi_for_year', 'gdp_for_year', 'gdp_per_capita', 'generation']
 
-#Dropping useless columns
+# 2. Dropping useless columns
 suicide_df.drop('country_year', axis=1, inplace=True) #useless
 suicide_df.drop('hdi_for_year', axis=1, inplace=True) #not enough data
 suicide_df.drop('generation', axis=1, inplace=True) #inaccurate
 
-#Fixing USA values and renaming the 05-14 age group
+# 3. Fixing USA values and renaming the 05-14 age group
 suicide_df.loc[suicide_df['country'] == 'United States', 'country'] = 'United States of America'
 suicide_df.loc[suicide_df['age'] == '5-14 years', 'age'] = '05-14 years'
+#=================================================================================================================================
+
+#Implementing code example in streamlit
 
 first_changes_code = (
 '''
@@ -91,6 +122,7 @@ suicide_df.loc[suicide_df['country'] == 'United States', 'country'] = 'United St
 suicide_df.loc[suicide_df['age'] == '5-14 years', 'age'] = '05-14 years'
 '''
 )
+
 if st.checkbox('Click to see the code', key='2'):
     st.code(first_changes_code, language='python')
 
@@ -99,17 +131,19 @@ if st.checkbox('Click to see the code', key='2'):
 #MANIPULATING THE NULL VALUES
 
 st.header('Manipulation of the null values')
-st.markdown(
+st.write(
 '''
-Looking at the info of our dataset, we see that there are some **null values** in the suicide rates column (*precisely 1200 null values, which are only from 2017 to 2020*).
+Looking at the info of our dataset, we see that there are some **null values** in the suicide rates column (***precisely 1200 null values, which are only from 2017 to 2020***).
 \n We can now procede in two ways: either **drop** them or **fix** them.
-\n Suicide rates are not an easily predictable number as many factors could influence them. In a certain year there might be a huge increase (*for example due to a big shock in the world economy*) or decrease 
-(*for example because of a relatively stable situation*). The best decision should be to drop the nulls, however, although it may result inaccurate, for the sake of this project we decide to manipulate the values 
-and replace the null ones with their relative mean from the last 10 years (*mean based on the rates of the last 10 years for each country, age group and gender*).
+\n Suicide rates are not an easily predictable number as many factors may influence them. In a certain year there might be a huge increase (***for example due to a big shock in the world economy***) or decrease 
+(***for example because of a relatively stable situation***). The best decision should be to **drop the nulls**, however, although it may result inaccurate, for the sake of this project we decide to manipulate the values 
+and **replace** the null ones with their relative **mean from the last 10 years** (***mean based on the rates of the last 10 years for each country, age group and gender***).
 
 '''
 )
 
+#=============================================================================
+#Code example
 null_example_code = (
 '''
 #Creating boolean masks
@@ -124,14 +158,22 @@ df.loc[(country_mask) & (age_mask) & (gender_mask), 'suicides_no'] = df[(country
 if st.checkbox('Click to see the code', key='3'):
     st.code(null_example_code, language='python')
     st.caption('This process has been done for each country, each gender and each age group. The whole code can be found in the Google Colab file linked in the Github page.')
+#=============================================================================
 
-st.markdown(
+#Continuing text
+
+st.write(
 '''
-We have now succesfully created a new dataframe without null values. This move, however, messes up the dataframe a little bit. The suicide rates over 100k population related to the previously null values are still
-equal to 0. Fixing them is not difficult, however, from 2016 to 2020 the population is sometimes not counted properly like in the previous years (*it uses the population of the whole country for each rate instead of
-using the population of each group and gender*).
-\n This incongruence is due to the fact that from that year, the data has been update by a different author.
-\n For this reason we are gonna use the new dataset with the estimated rates only in certain plots and a dataset until 2016 for others. 
+We have now succesfully created a **new dataframe without null values**. This move, however, messes up the dataframe a little bit. The suicide rates over 100k population related to the previously null values are still
+equal to 0. Fixing them is not difficult, however, from 2016 to 2020 the population is sometimes not counted properly like in the previous years (***it uses the population of the whole country for each rate instead of
+using the population of each group and gender***).
+\n This incongruence is due to the fact that from that year, the data has been update by a **different author**.
+'''
+)
+
+st.error('''
+**For this reason we are gonna use the new dataset with the estimated rates only in certain plots and a dataset with the values until 2016 for others**.
+
 '''
 )
 
@@ -146,53 +188,67 @@ suicide_df_until_2016 = suicide_df_not_filled[year_2016_mask]
 
 #==========================================================================================================================================================================================================
 
-#DATA VISUALIZATION
+#DATA VISUALIZATION CHAPTER
 
 st.header('Data Visualization')
 
 #1. Total rates analysis
 st.subheader('Analysis of the total rates from 1985 to 2020')
 
+#Year groupby, using the dataframe with estimated values
 year_groupby_sumrates_filled = suicide_df_filled.groupby('year').suicides_no.sum()
 year_groupby_sumrates_filled = year_groupby_sumrates_filled.reset_index()
 
+#Total Rates plot
 option = st.selectbox(
     'What type of plot you want to display?',
     ('Choose the plot','Bar plot', 'Line plot'),
     key = 'selectbox1'
 )
 if option == 'Bar plot':
+    #Bar plot
     f, ax = plt.subplots(figsize=(12,10))
-    sns.barplot(x='year' , y= 'suicides_no', data=year_groupby_sumrates_filled, color = 'c', orient='v')
+
     ax.set_title('Trend of the total suicide rates from 1985 to 2020', weight='bold')
-    #ax.ticklabel_format(axis = 'x', style = 'plain')
-    ax.set_ylabel('Year')
-    ax.set_xlabel('Total suicide rates')
+
+    sns.barplot(x='year' , y= 'suicides_no', data=year_groupby_sumrates_filled, color = 'c', orient='v')
+    
+    ax.set_xlabel('Year')
+    ax.set_ylabel('Total suicide rates')
     ax.tick_params(axis='x', labelrotation = 45)
+    
     st.write(f)
     st.caption('Trend of the total suicide rates from 1985 to 2020 (***using the data with the estimated values obtained with the mean***)')
 elif option == 'Line plot':
+    #Line plot
     f, ax = plt.subplots(figsize=(12,10))
-    sns.lineplot(x='year' , y= 'suicides_no', data=year_groupby_sumrates_filled)
+
     ax.set_title('Trend of the total suicide rates from 1985 to 2020', weight='bold')
-    #ax.ticklabel_format(axis = 'x', style = 'plain')
+
+    sns.lineplot(x='year' , y= 'suicides_no', data=year_groupby_sumrates_filled)
+    
     ax.set_ylabel('Total suicide rates')
     ax.set_xlabel('Year')
+    
     st.write(f)
     st.caption('Trend of the total suicide rates from 1985 to 2020 (***using the data with the estimated values obtained with the mean***)')
 else:
     st.text('')
 
-
-st.markdown(
+#Writing conclusions about the total rates over the years analysis
+st.info(
 '''
-Looking at the trend of the total suicide rates from 1985 to 2020, we can see that the peak has occurred in the late 1990's - early 2000's, in particular from 1999 to 2003.
-\n Since then, the trend went down and reached numbers similar to the ones from the early 1990's. Also, the huge decrease in 2016 is due to the fact that we have a lot less data for that year (*only 160 values*).
-\n Now, let's see how the total rates are divided by gender and age group and also how they changed over the years:
+Looking at the trend of the **total suicide rates from 1985 to 2020**, we can see that the **peak** has occurred in the **late 1990's - early 2000's**, in particular from **1999** to **2003**.
+\n Since then, the trend went down and reached numbers similar to the ones from the early 1990's. Also, **the huge decrease in 2016 is due to the fact that we have a lot less data for that year** (*only 160 values*).
 '''
 )
 
-#======================================
+st.write(
+'''
+Now, let's see how the total rates are divided by **sex** and **age group** and also how they changed over the **years**:
+'''
+)
+
 
 #GENDER AND AGE TOTAL RATES PLOTS
 
@@ -228,51 +284,69 @@ option2 = st.selectbox(
 )
 if option2 == 'Gender comparison':
     st.write('*Comparison of the total rates over the years, by gender*:')
+    
     col_1,col_2 = st.columns(2)
     with col_1:
         f, ax = plt.subplots(1,2, figsize = (12,10))
+
         f.suptitle('Comparison of male and female total suicide rates from 1985 to 2020', weight='bold')
+        
         sns.barplot(x= gender, y= values, palette =('hotpink','cornflowerblue'), ax=ax[1])
+        
         ax[1].ticklabel_format(axis = 'y', style = 'plain')
         ax[1].set_ylabel('Total suicide rates')
-        ax[1].set_xlabel('Gender')
-        #========
+        ax[1].set_xlabel('Sex')
+        
         gender_groupby_sumrates_not_filled.plot.pie(colors=('hotpink','cornflowerblue'), explode=[0, 0.01], autopct='%1.1f%%', ax=ax[0])
         ax[0].set_ylabel('')
+        
         st.write(f)
     with col_2:
         f, ax = plt.subplots(figsize = (12,10.709))
-        sns.barplot(y = 'suicides_no', x = 'year', hue = 'gender',data = year_gender_groupby_sumrates_not_filled, palette =('hotpink','cornflowerblue'), orient='v')
-        ax.ticklabel_format(axis = 'y', style = 'plain')
-        #ax.set_title('Bar chart', weight='bold')
+        
         f.suptitle('Comparison of male and female total suicide rates from 1985 to 2020 for each year', weight='bold')
+
+        sns.barplot(y = 'suicides_no', x = 'year', hue = 'gender',data = year_gender_groupby_sumrates_not_filled, palette =('hotpink','cornflowerblue'), orient='v')
+        
+        ax.ticklabel_format(axis = 'y', style = 'plain')
         ax.set_xlabel('Year')
         ax.set_ylabel('Total suicide rates')
+        
         ax.tick_params(axis='x', labelrotation = 45)
         st.write(f)
+
     st.caption('The left plot shows the comparison of male and female total suicide rates from 1985 to 2020. The right plot, instead, shows the total male and female suicide rates for each year (***both plots are obtained using the data without the estimated values***)')
     st.write('*Comparison of the total rates over 100k population, over the years and by gender*:')
+    
     col_1, col_2 = st.columns(2)
     with col_1:
         f, ax = plt.subplots(1,2, figsize = (12,10))
         f.suptitle('Comparison of male and female total suicide rates over 100k population from 1985 to 2020', weight='bold')
+        
         sns.barplot(x= gender_100k, y= values_100k, palette =('hotpink','cornflowerblue'), ax=ax[1])
+        
         ax[1].ticklabel_format(axis = 'y', style = 'plain')
-        ax[1].set_xlabel('Gender')
+        ax[1].set_xlabel('Sex')
         ax[1].set_ylabel('Total suicide rates over 100k population')
-        #========
+        
         gender_groupby_sumrates_100kpop_not_filled.plot.pie(colors=('hotpink','cornflowerblue'), explode=[0, 0.01], autopct='%1.1f%%', ax=ax[0])
+        
         ax[0].set_ylabel('')
-        st.write(f)
+        
+        st.write(f)    
     with col_2:
         f, ax = plt.subplots(figsize = (12,10.789))
+        
         f.suptitle('Comparison of male and female total suicide rates over 100k population from 1985 to 2020, for each year', weight='bold')
+        
         sns.barplot(y = 'suicides_100k_pop', x = 'year', hue = 'gender',data = year_gender_groupby_sumrates_100kpop_not_filled, palette =('hotpink','cornflowerblue'), orient='v')
+        
         ax.ticklabel_format(axis = 'y', style = 'plain')
         ax.set_xlabel('Year')
         ax.set_ylabel('Total suicide rates over 100k population')
         ax.tick_params(axis='x', labelrotation = 45)
-        st.write(f)
+        
+        st.write(f)    
     st.caption('The left plot shows the comparison of **male and female total suicide rates over 100k population** from 1985 to 2020. The right plot, instead, shows the total male and female suicide rates over 100k population for each year (***both plots are obtained using the data without the estimated values***)')
 if option2 == 'Age comparison':
     st.write('*Comparison of the total rates over the years, by different age groups*:')
