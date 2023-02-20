@@ -11,7 +11,8 @@ st.info(
 Suicide is a serious global public health issue. It is among the top twenty leading causes of death worldwide, with more deaths due to suicide than to malaria, breast cancer, or war and homicide. 
 Close to 800 000 people die by suicide every year (*World Health Organization, 2019*).
 \n 
-The aim of this project is to analyze and visualize the different suicide rates around the world, from 1985 to 2020.
+The aim of this project is to **analyze** and **visualize** the different suicide rates around the world, from 1985 to 2020, and see the **correlation** between our data. In particular, we are gonna see if the GDP per capita is a factor that influences the rates.
+\n Also, we are gonna implement some basic **Machine Learning** examples such as **clustering** and **linear regression**.
 '''
 )
 
@@ -153,6 +154,7 @@ st.header('Data Visualization')
 st.subheader('Analysis of the total rates from 1985 to 2020')
 
 year_groupby_sumrates_filled = suicide_df_filled.groupby('year').suicides_no.sum()
+year_groupby_sumrates_filled = year_groupby_sumrates_filled.reset_index()
 
 option = st.selectbox(
     'What type of plot you want to display?',
@@ -161,16 +163,17 @@ option = st.selectbox(
 )
 if option == 'Bar plot':
     f, ax = plt.subplots(figsize=(12,10))
-    sns.barplot(x=year_groupby_sumrates_filled.values , y= year_groupby_sumrates_filled.index, color = 'c', orient='h')
+    sns.barplot(x='year' , y= 'suicides_no', data=year_groupby_sumrates_filled, color = 'c', orient='v')
     ax.set_title('Trend of the total suicide rates from 1985 to 2020', weight='bold')
     #ax.ticklabel_format(axis = 'x', style = 'plain')
     ax.set_ylabel('Year')
     ax.set_xlabel('Total suicide rates')
+    ax.tick_params(axis='x', labelrotation = 45)
     st.write(f)
     st.caption('Trend of the total suicide rates from 1985 to 2020 (***using the data with the estimated values obtained with the mean***)')
 elif option == 'Line plot':
     f, ax = plt.subplots(figsize=(12,10))
-    sns.lineplot(x=year_groupby_sumrates_filled.index , y= year_groupby_sumrates_filled.values)
+    sns.lineplot(x='year' , y= 'suicides_no', data=year_groupby_sumrates_filled)
     ax.set_title('Trend of the total suicide rates from 1985 to 2020', weight='bold')
     #ax.ticklabel_format(axis = 'x', style = 'plain')
     ax.set_ylabel('Total suicide rates')
@@ -510,7 +513,11 @@ if st.checkbox('Click to see the **heatmap**'):
 st.write(
 '''
 Looking at the **heatmap** we see that the strongest correlation in our data is between the suicide rates and the **population**, with a value of **0.62**. Also, there's some correlation (*even though it's not so strong*) between the **GDP per capita** and the **year** column, with a value of 0.34.
-\n Also, we can see that, although someone may think the opposite, **GDP per capita** **doesn't seem to affect the suicide rates** overall, as they have a correlation value that is equal to only **0,062**.
+'''
+)
+
+st.info('''
+We can see that, although someone may think the opposite, **GDP per capita** **doesn't seem to affect the suicide rates** overall, as they have a correlation value that is equal to only **0,062**.
 '''
 )
 
@@ -549,52 +556,59 @@ From the following plots we can see how the **GDP per capita** had an overall **
 '''
 )
 
+
+#EXPANDER CLUSTERING MODEL
+
 cluster_code_example = '''
+#Import
 from sklearn.cluster import KMeans
+
+#Model
 x = suicide_df_until_2016[['year', 'gdp_per_capita']]
+
 km = KMeans(n_clusters=3, random_state=42)
+
 y_pred = km.fit_predict(x)
-
-#Plot
-f = plt.figure(figsize=(12,10))
-labels_cluster = ['Ordinary GDP per capita', 'Low GDP per capita', 'High GDP per capita']
-for i in range(3):
-    plt.scatter(x.loc[y_pred==i, 'year'], x.loc[y_pred==i, 'gdp_per_capita'], label=labels_cluster[i]) 
-plt.xlabel('year')
-plt.ylabel('gdp_per_capita')
-plt.legend()
 '''
-if st.checkbox('Click to see the code', key='clustercode'):
-    st.code(cluster_code_example, language='python')
 
-#CLUSTERING ALGORITHM AND PLOTTING
-if st.button('Run the model'):
-    #KMeans algorithm
-    from sklearn.cluster import KMeans
-    x = suicide_df_until_2016[['year', 'gdp_per_capita']]
-    km = KMeans(n_clusters=3, random_state=42)
-    y_pred = km.fit_predict(x)
-    #Plotting
-    f = plt.figure(figsize=(12,10))
-    labels_cluster = ['Ordinary GDP per capita', 'Low GDP per capita', 'High GDP per capita']
-    for i in range(3):
-        plt.scatter(x.loc[y_pred==i, 'year'], x.loc[y_pred==i, 'gdp_per_capita'], label=labels_cluster[i]) 
-    plt.xlabel('year')
-    plt.ylabel('gdp_per_capita')
-    plt.legend()
-    st.write(f)
-    st.caption('From the plot above we can see how the model finds the three clusters (***three levels of GDP per capita***) over the years (***for this model we used the data until 2016, without any estimated values***).')
+with st.expander('Clustering Model'):
+
+    if st.checkbox('Click to see the code', key='clustercode'):
+        st.code(cluster_code_example, language='python')
+
+    #CLUSTERING ALGORITHM AND PLOTTING
+    if st.button('Run the model'):
+        with st.spinner('Training...'):
+
+            #KMeans algorithm
+            from sklearn.cluster import KMeans
+
+            x = suicide_df_until_2016[['year', 'gdp_per_capita']]
+
+            km = KMeans(n_clusters=3, random_state=42)
+
+            y_pred = km.fit_predict(x)
+
+            #Plotting
+            f = plt.figure(figsize=(12,10))
+            labels_cluster = ['Ordinary GDP per capita', 'Low GDP per capita', 'High GDP per capita']
+            for i in range(3):
+                plt.scatter(x.loc[y_pred==i, 'year'], x.loc[y_pred==i, 'gdp_per_capita'], label=labels_cluster[i]) 
+            
+            plt.xlabel('year')
+            plt.ylabel('gdp_per_capita')
+            
+            plt.legend()
+            
+            st.write(f)
+            st.caption('From the plot above we can see how the model finds the three clusters (***three levels of GDP per capita***) over the years (***for this model we used the data until 2016, without any estimated values***).')
 
 
 #===========================================================================
 
 
-#SUICIDES VS POPULATION ANALYSIS
-st.write(
-'''
-##### 2. Analysis of the suicide rates among the population
-'''
-)
+# 2. SUICIDES VS POPULATION ANALYSIS
+st.subheader('Analysis of the distribution of the rates among the population and Linear Regression example')
 
 #scatterplot rates vs plot
 if st.checkbox('Click to see the plot'):
@@ -605,3 +619,73 @@ if st.checkbox('Click to see the plot'):
     ax.set_ylabel('Total suicide rates')
     ax.set_xlabel('Population')
     st.write(f)
+
+linear_reg_code_example ='''
+#import
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+
+#slider
+test_size = st.slider('Test size: ', min_value=0.1, max_value=0.9, step =0.1)  
+
+#model
+feature = suicide_df_until_2016[['population']]
+target = suicide_df_until_2016['suicides_no']
+
+x_train, x_test, y_train, y_test = train_test_split(feature, target, test_size=test_size, random_state=42)
+
+model = LinearRegression()
+
+model.fit(x_train, y_train)
+
+y_pred = model.predict(x_test)
+
+mse = mean_squared_error(y_test, y_pred)
+'''
+
+#Linear Regression
+with st.expander('Linear Regression Model'):
+    from sklearn.linear_model import LinearRegression
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import mean_squared_error
+
+    if st.checkbox('Show the code', key='linreg_code'):
+        st.code(linear_reg_code_example, language='python')
+
+    #Slider
+    test_size = st.slider('Test size: ', min_value=0.1, max_value=0.9, step =0.1)
+
+    if st.button('Run the linear regression model'):
+        with st.spinner('Training...'):
+            feature = suicide_df_until_2016[['population']]
+            target = suicide_df_until_2016['suicides_no']
+
+            x_train, x_test, y_train, y_test = train_test_split(feature, target, test_size=test_size, random_state=42)
+
+            model = LinearRegression()
+            
+            model.fit(x_train, y_train)
+            
+            y_pred = model.predict(x_test)
+
+            mse = mean_squared_error(y_test, y_pred)
+
+            #Plot
+            fig = plt.figure(figsize=(12,10))
+            plt.title('Linear Regression Model', weight='bold')
+
+            #Scatter
+            plt.scatter(x_test, y_test, color='blue')
+
+            # Regression line
+            plt.plot(x_test, y_pred, color='red')
+
+            plt.xlabel('Population')
+            plt.ylabel('Total suicide rates')
+            plt.ticklabel_format(style = 'plain')
+
+            st.write(fig)
+            st.write('Mean Squared Error: ', mse)
+
+#============================================================================================================================
