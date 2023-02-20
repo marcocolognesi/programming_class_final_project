@@ -31,8 +31,10 @@ original_df = pd.read_csv('master.csv')
 suicide_df = original_df.copy()
 
 #adding text and checkbox on streamlit
-st.write('By taking a first look at the dataset, we can see how the rates are divided for each **country**, for each **year** (*from 1985 to 2020*), for each **sex** and for 6 different **age groups** (*"05-14 years", "15-24 years", "25-34 years", "35-54 years", "55-74 years", "75+ years"*).')
-
+st.write('''
+By taking a first look at the dataset, we can see how the rates are divided for each **country**, for each **year** (*from `1985` to `2020`*), for each **sex** and for six different **age groups** (*`"05-14 years"`, `"15-24 years"`, `"25-34 years"`, `"35-54 years"`, `"55-74 years"`, `"75+ years"`*)
+'''
+)
 #checkbox to see the original data in the web page
 if st.checkbox('Click to see the original data'):
     st.write(original_df)
@@ -79,11 +81,11 @@ The **changes** made to the original data are the following:
 
 * The columns are **renamed** in order to be more manageable;
 * The following columns are **dropped**:
-    - **'country_year'**, because it's useless for our analysis;
-    - **'hdi_for_year'**, because it doesn't have enough data to work with (*only 12.300 values instead of the 31.756 of the other columns*);
-    - **'generation'**, because by taking a deeper look into the data we can see that it's a bit inaccurate.
+    - **`country_year`**, because it's useless for our analysis;
+    - **`hdi_for_year`**, because it doesn't have enough data to work with (***only `12.300` values instead of the `31.756` of the other columns***);
+    - **`generation`**, because by taking a deeper look into the data we can see that it's a bit inaccurate.
 * We fix the rates for the United States of America, as they are listed in two different ways;
-* We rename the "5-14 years" age group for a better future sorting and visualization. 
+* We rename the `'5-14 years'` age group for a better future sorting and visualization. 
 '''
 )
 
@@ -133,7 +135,7 @@ if st.checkbox('Click to see the code', key='2'):
 st.header('Manipulation of the null values')
 st.write(
 '''
-Looking at the info of our dataset, we see that there are some **null values** in the suicide rates column (***precisely 1200 null values, which are only from 2017 to 2020***).
+Looking at the info of our dataset, we see that there are some **null values** in the suicide rates column (***precisely `1200` null values, which are only from 2017 to 2020***).
 \n We can now procede in two ways: either **drop** them or **fix** them.
 \n Suicide rates are not an easily predictable number as many factors may influence them. In a certain year there might be a huge increase (***for example due to a big shock in the world economy***) or decrease 
 (***for example because of a relatively stable situation***). The best decision should be to **drop the nulls**, however, although it may result inaccurate, for the sake of this project we decide to manipulate the values 
@@ -638,12 +640,12 @@ if st.checkbox('Click to see the **heatmap**'):
 #Writing the conclusions found by the heatmap analysis
 st.write(
 '''
-Looking at the **heatmap** we see that the strongest correlation in our data is between the suicide rates and the **population**, with a value of **0.62**. Also, there's some correlation (*even though it's not so strong*) between the **GDP per capita** and the **year** column, with a value of 0.34.
+Looking at the **heatmap** we see that the strongest correlation in our data is between the suicide rates and the **population**, with a value of **`0.62`**. Also, there's some correlation (*even though it's not so strong*) between the **GDP per capita** and the **year** column, with a value of `0.34`.
 '''
 )
 
 st.info('''
-We can see that, although someone may think the opposite, **GDP per capita** **doesn't seem to affect the suicide rates** overall, as they have a correlation value that is equal to only **0,062**.
+We can see that, although someone may think the opposite, **GDP per capita** **doesn't seem to affect the suicide rates** overall, as they have a correlation value that is equal to only **`0,062`**.
 '''
 )
 
@@ -668,6 +670,7 @@ if option3 == 'Line plot':
     ax.set_xlabel('Years')
     
     st.write(f)
+    st.caption('Trend of the GDP per capita over the years. The plots have been obtained using the data until 2016.')
 elif option3 == 'Scatter plot':
     #scatterplot gdp vs year
     f, ax = plt.subplots(figsize=(12,10))
@@ -680,13 +683,14 @@ elif option3 == 'Scatter plot':
     ax.set_xlabel('Years')
     
     st.write(f)
+    st.caption('Trend of the GDP per capita over the years. The plots have been obtained using the data until 2016.')
 else:
     st.write('')
 
 st.write(
 '''
 From the following plots we can see how the **GDP per capita** had an overall **increasing trend** over the years.
-\n Now, we are gonna try to implement a simple **clustering** example, using the **KMeans algorithm**, to determine three different GDP per capita groups: **low**, **medium** and **high**.
+\n Now, we are gonna try to implement a simple **clustering** example, using the **KMeans algorithm**, to determine three different GDP per capita groups: **`low`**, **`medium`** and **`high`**.
 '''
 )
 
@@ -757,6 +761,13 @@ if st.checkbox('Click to see the plot'):
     ax.set_xlabel('Population')
     
     st.write(f)
+    st.caption('Distribution of the suicide rates among the population, using the data until 2016.')
+
+st.write('''
+From this plot we can see what is the number of suicide rates per population and how they are distributed. 
+\n Now, let's try to implement a **Linear Regression** algorithm able to predict the number of suicides per population. 
+'''
+)
 
 linear_reg_code_example ='''
 #import
@@ -791,15 +802,18 @@ with st.expander('Linear Regression Model'):
     if st.checkbox('Show the code', key='linreg_code'):
         st.code(linear_reg_code_example, language='python')
 
-    #Slider
+    #Test size slider
     test_size = st.slider('Test size: ', min_value=0.1, max_value=0.9, step =0.1)
 
-    if st.button('Run the linear regression model'):
+    #Random state slider
+    random_state= st.slider('Random state: ', min_value = 1, max_value = 100, step = 1)
+    
+    if st.button('Run the model', key='linreg_button'):
         with st.spinner('Training...'):
             feature = suicide_df_until_2016[['population']]
             target = suicide_df_until_2016['suicides_no']
 
-            x_train, x_test, y_train, y_test = train_test_split(feature, target, test_size=test_size, random_state=42)
+            x_train, x_test, y_train, y_test = train_test_split(feature, target, test_size=test_size, random_state=random_state)
 
             model = LinearRegression()
             
@@ -824,6 +838,7 @@ with st.expander('Linear Regression Model'):
             plt.ticklabel_format(style = 'plain')
 
             st.write(fig)
+            st.caption('This plot shows the result of the Linear Regression model. **The data used for this model is the data until 2016**.')
             st.write('Mean Squared Error: ', mse)
 
 #============================================================================================================================
